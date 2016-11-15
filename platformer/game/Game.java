@@ -16,12 +16,12 @@ import java.util.logging.Logger;
  */
 public class Game implements Runnable{
     private boolean running;        //Отвечает за запуск или остановку игры
-    protected int timeDelay = 100;  //время шага таймера в игре
-    protected Canvas canvas;        //холст
-    protected GameMap map;          //карта
-    protected Player player;        //игрок
+    private int timeDelay = 100;  //время шага таймера в игре
+    private Canvas canvas;        //холст
+    private GameMap map;          //карта
+    private Player player;        //игрок
 
-    protected KeyAdapter keyListener = new KeyAdapter() {
+    private KeyAdapter keyListener = new KeyAdapter() {
         @Override
         public void keyPressed(KeyEvent e) {
             if(e.getKeyCode() == 37)
@@ -83,7 +83,7 @@ public class Game implements Runnable{
         }
     }
 
-    protected void update() throws IOException {   //Вызывается по таймеру игры
+    private void update() throws IOException {   //Вызывается по таймеру игры
         canvas.removeRenders();
             ////перемещение персонажа(если возможно)
        if((player.directionX!=0 || player.directionY!=0) && accessMove()) {
@@ -143,59 +143,39 @@ public class Game implements Runnable{
     }
 
         //Проверяем, является ли плитка пригодной для прохождения персонажем.
-    protected boolean tileIsWalkable(int x, int y) {
+    private boolean tileIsWalkable(int x, int y) {
         BaseTile tile=BaseTile.getTileById(map.getTileId(x,y));
         return (tile!=null && tile.isWalkable);
     }
-    /**
-     * Проверяем возможность персонажа переместится.
-     *
-     * В данной реализации, может случится, что объект не достигает границы плитки, а идти уже не может.
-     * Причина вероятно в значении скорости игрока (player.speed), она должна делить без остатка размер плитки.
-     * В противном случаи остаток нужно прибавить к максимальному значению right и down.
-     */
-    protected boolean accessMove() {
+    private boolean accessMove() {
         int left ,right, top,down;
-        boolean isWalkable = true;
-                //верх и низ
-        //Находим вероятные точки плиток с учетом направления directionY
-        left =  (int)Math.ceil ((player.posX+player.speed*player.directionX)/BaseTile.SIZE);
-        right=  (int)Math.floor((player.posX+player.width+player.speed*player.directionX-1)/BaseTile.SIZE);
-        top  =  (int)Math.ceil ((player.posY+player.speed*player.directionY)/BaseTile.SIZE);
-        down =  (int)Math.floor((player.posY+player.height+player.speed*player.directionY-1)/BaseTile.SIZE);
-
-        //проверяем доступность направления по вершине правой и левой сверх (низу) - на тот случай,
-        //если игрок находится вне начала плитки по оси Х
+        left =  (player.posX+player.speed*player.directionX)/BaseTile.SIZE;
+        right=  (player.posX+player.width+player.speed*player.directionX-1)/BaseTile.SIZE;
+        top  =  (player.posY+player.speed*player.directionY)/BaseTile.SIZE;
+        down =  (player.posY+player.height+player.speed*player.directionY-1)/BaseTile.SIZE;
         if(player.directionY == -1 && !(tileIsWalkable(left,top) && tileIsWalkable(right,top))) {
-            isWalkable = false;
+            return false;
         } else  {
             if(player.directionY == 1 && !(tileIsWalkable(left,down) && tileIsWalkable(right,down)))
-                isWalkable = false;
+                return false;
         }
-                //право и лево
-        //Находим вероятные точки плиток с учетом направления directionX
-        //left = (int)Math.ceil ((player.posX + player.speed * player.directionX) / BaseTile.SIZE);
-        //right= (int)Math.floor((player.posX + player.width + player.speed * player.directionX - 1) / BaseTile.SIZE);
-        //top  = (int)Math.ceil ((player.posY) / BaseTile.SIZE);
-        //down = (int)Math.floor((player.posY + player.height -1) / BaseTile.SIZE);
-        //проверяем доступность направления по вершине верха и низа лева (права) - на тот случай если игрок находится вне начала плитки по оси Y
         if(player.directionX == -1 && !(tileIsWalkable(left,top) && tileIsWalkable(left,down))) {
-            isWalkable = false;
+            return false;
         } else{
             if(player.directionX == 1 && !(tileIsWalkable(right,top) && tileIsWalkable(right,down)))
-                isWalkable = false;
+                return false;
         }
-        return isWalkable;
+        return true;
     }
 
 
     //Установить обработчики событий
-    public void setListener() {
+    private void setListener() {
         canvas.setFocusable(true);//нужно указать для получения событий с клавиатуры
         canvas.addKeyListener(keyListener);
     }
     //Удалить обработчики событий.
-    public void unSetListener() {
+    private void unSetListener() {
         canvas.setFocusable(false);//убираем  фокус
         canvas.removeKeyListener(keyListener);
     }
