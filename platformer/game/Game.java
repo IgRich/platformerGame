@@ -85,64 +85,51 @@ public class Game implements Runnable{
 
     protected void update() throws IOException {   //Вызывается по таймеру игры
         canvas.removeRenders();
-            //перемещение персонажа(если возможно)
-
+            ////перемещение персонажа(если возможно)
        if((player.directionX!=0 || player.directionY!=0) && accessMove()) {
             player.posX+=player.directionX*player.speed;
             player.posY+=player.directionY*player.speed;
         }
-
-        //все эти величины заданы в тайлах!
         int mapW=map.getWidth(),            //ширина карты
-            mapH=map.getHeight();           //высота карты
-        final int vScreenX=17,vScreenY=13;  //сколько влазит в экран
-        int wScreenX=0,wScreenY=0;          //мировые координаты центра
-            //по умолчанию в центре рисуется(если не край)
-        //Это всегда левый-верхний угол блока, куда влезет наш перс.
+            mapH=map.getHeight(),           //высота карты
+                //сколько влазит в экран в тайлах
+            vScreenX=17,vScreenY=13,
+                //мировые координаты центра
+            wScreenX=player.posX/BaseTile.SIZE,
+            wScreenY=player.posY/BaseTile.SIZE,
+                //Смещение(для плавности перехода от тайла к тайлу)
+            offsetX=player.posX-(wScreenX*BaseTile.SIZE),
+            offsetY=player.posY-(wScreenY*BaseTile.SIZE);
+
         player.posRenderX=vScreenX/2*BaseTile.SIZE;
         player.posRenderY=vScreenY/2*BaseTile.SIZE;
-        wScreenX=player.posX/BaseTile.SIZE;
-        wScreenY=player.posY/BaseTile.SIZE;
-        //левая сторона
-        int offsetX=0,offsetY=0;
-        boolean ofX=true,ofY=true;
+            //[левая|правый] край
         if(player.posX/BaseTile.SIZE<vScreenX/2){
             wScreenX=vScreenX/2;
             player.posRenderX=player.posX;
             offsetX=0;
-            ofX=false;
+        } else{
+            if(player.posX>(mapW-vScreenX/2)*BaseTile.SIZE){
+                wScreenX=mapW-vScreenX/2;
+                player.posRenderX=BaseTile.SIZE*(vScreenX-1)-(mapW*BaseTile.SIZE-player.posX);
+                offsetX=0;
+            }
         }
-        //верхняя сторон
+            //[верхний|нижний]край
         if(player.posY/BaseTile.SIZE<vScreenY/2){
             wScreenY=vScreenY/2;
             player.posRenderY=player.posY;
             offsetY=0;
-            ofY=false;
-        }
-        //правая сторона
-        if(player.posX>(mapW-vScreenX/2)*BaseTile.SIZE){
-            wScreenX=mapW-vScreenX/2;
-            player.posRenderX=BaseTile.SIZE*(vScreenX-1)-(mapW*BaseTile.SIZE-player.posX);
-            offsetX=0;
-            ofX=false;
-        }
-        //нижняя сторона
-        if(player.posY>(mapH-vScreenY/2)*BaseTile.SIZE){
-            wScreenY=mapH-vScreenY/2;
-            player.posRenderY=(vScreenY-mapH-1)*BaseTile.SIZE+player.posY;
-            offsetY=0;
-            ofY=false;
+        }else{
+            if(player.posY>(mapH-vScreenY/2)*BaseTile.SIZE){
+                wScreenY=mapH-vScreenY/2;
+                player.posRenderY=(vScreenY-mapH-1)*BaseTile.SIZE+player.posY;
+                offsetY=0;
+            }
         }
         BaseTile tile;
-        int startTileY=(wScreenY-vScreenY/2),
-            endTileY=(wScreenY+vScreenY/2),
-            startTileX=(wScreenX-vScreenX/2),
-            endTileX=(wScreenX+vScreenX/2);
-        if(ofX==true)
-            offsetX=player.posX-(wScreenX*BaseTile.SIZE);
-        if(ofY==true)
-            offsetY=player.posY-(wScreenY*BaseTile.SIZE);
-
+            //для корректного смещения
+        int startTileY=(wScreenY-vScreenY/2),startTileX=(wScreenX-vScreenX/2);
         for(int y=0; y<mapW; y++){
             for(int x=0; x<mapH; x++){
                 tile = BaseTile.getTileById(map.getTileId(x, y));
