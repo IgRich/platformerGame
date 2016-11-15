@@ -27,6 +27,6 @@ public class Player implements IRenderToConvas {
 
     @Override
     public void render(Graphics g) {
-        g.drawImage(imageSrc, posX, posY, width, height, null);
+        g.drawImage(imageSrc, posRenderX, posRenderY, width, height, null);
     }
 }

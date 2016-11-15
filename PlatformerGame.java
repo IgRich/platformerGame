@@ -11,11 +11,11 @@ public class PlatformerGame {
         f.setDefaultCloseOperation( javax.swing.WindowConstants.EXIT_ON_CLOSE );
         f.setResizable(false);
         //устанавливаем размер холста
-        game.getCanvas().setBounds(0, 0, 640, 480);
+        game.getCanvas().setBounds(0, 0, 680, 520);
         //ставим холст для отображения
         f.add(game.getCanvas());
-        f.setTitle("Нихуяшеньки!");
-        f.setBounds(300,300,640,480);
+        f.setTitle("Platformer!");
+        f.setBounds(110,110,640,480);
         f.setVisible(true);
     }
 }
